@@ -131,9 +131,9 @@
     <p>I love u. Say yes 😌</p>
 
     <div class="btns">
-      <button id="yes">Ja 💖</button>
+      <button id="yes">Yes 💖</button>
       <!-- Nein ist fixed-position, damit es frei fliehen kann -->
-      <button id="no">Nein 🙃</button>
+      <button id="no">No 🙃</button>
     </div>
 
     <div id="result" aria-live="polite"></div>
@@ -175,7 +175,7 @@
     }
 
     yesBtn.addEventListener("click", () => {
-      result.textContent = "Yaaay! 🥰 Dann ist es ein Date! 💐";
+      result.textContent = "Yaaay! 🥰 We have a Date! 💐";
       spawnHearts(38);
 
       yesBtn.disabled = true;
