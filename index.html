@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Will you be my Valentine?</title>
 
 <style>
 :root{
-  --bg1:#f7c3d9;
-  --bg2:#eaa0c2;
+  --bg1:#f6c1d6;
+  --bg2:#e9a6c2;
   --card:#f6f2f2;
   --text:#111;
   --muted:#8f8f8f;
@@ -28,29 +28,78 @@ body{
   padding:24px;
 }
 
-/* 🌸 FAST Sakura canvas layer */
-#sakuraCanvas{
+/* =====================
+   🌸 BACKGROUND LAYERS
+===================== */
+.bg-layer{
   position:fixed;
   inset:0;
-  width:100vw;
-  height:100vh;
-  z-index:1;
   pointer-events:none;
+  z-index:1;
 }
 
-/* Card */
+/* Cherry blossoms */
+.blossom{
+  position:absolute;
+  top:-10%;
+  font-size:26px;
+  opacity:0.9;
+  animation:
+    blossomFall linear infinite,
+    blossomSway ease-in-out infinite;
+}
+
+/* Glitter */
+.glitter{
+  position:absolute;
+  top:-10%;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.9);
+  box-shadow:
+    0 0 6px rgba(255,255,255,0.9),
+    0 0 12px rgba(255,200,230,0.8);
+  opacity:0.7;
+  animation:
+    glitterFall linear infinite,
+    glitterDrift ease-in-out infinite;
+}
+
+@keyframes blossomFall{
+  from{ transform:translateY(-10vh) rotate(0deg); }
+  to{ transform:translateY(120vh) rotate(360deg); }
+}
+@keyframes blossomSway{
+  0%{ margin-left:0; }
+  50%{ margin-left:60px; }
+  100%{ margin-left:0; }
+}
+
+@keyframes glitterFall{
+  from{ transform:translateY(-10vh); }
+  to{ transform:translateY(120vh); }
+}
+@keyframes glitterDrift{
+  0%{ margin-left:0; }
+  50%{ margin-left:40px; }
+  100%{ margin-left:0; }
+}
+
+/* =====================
+   CARD
+===================== */
 .card{
   position:relative;
   z-index:2;
-  width:min(760px, 94vw);
+  width:min(760px,94vw);
   background:var(--card);
-  border-radius:22px;
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-  padding:36px 28px 22px;
+  border-radius:20px;
+  box-shadow:0 18px 50px rgba(0,0,0,.2);
+  padding:34px 28px 20px;
   text-align:center;
 }
 
-/* Icon */
 .icon{
   width:72px;
   height:72px;
@@ -59,16 +108,14 @@ body{
   display:block;
 }
 
-/* Title */
 h1{
   margin:0 0 22px;
-  font-size:clamp(22px, 3.5vw, 34px);
+  font-size:clamp(22px,3.5vw,34px);
   font-weight:800;
   text-transform:lowercase;
   color:var(--text);
 }
 
-/* Buttons */
 .controls{
   position:relative;
   width:420px;
@@ -89,7 +136,7 @@ h1{
   cursor:pointer;
   background:var(--yes);
   color:white;
-  box-shadow:0 18px 36px rgba(230,27,106,.35);
+  box-shadow:0 14px 28px rgba(230,27,106,.25);
 }
 #yes:active{ transform:scale(.97); }
 
@@ -103,8 +150,6 @@ h1{
   font-size:13px;
   color:var(--muted);
   cursor:pointer;
-  transition:left .12s ease, top .12s ease;
-  touch-action:manipulation;
 }
 
 .caption{
@@ -123,7 +168,8 @@ h1{
 
 <body>
 
-<canvas id="sakuraCanvas"></canvas>
+<!-- 🌸🌟 Background -->
+<div class="bg-layer" id="bgLayer"></div>
 
 <main class="card">
   <img class="icon" src="icon.png" alt="icon">
@@ -160,192 +206,46 @@ document.getElementById("yes").onclick = () => {
 const no = document.getElementById("no");
 const arena = document.getElementById("arena");
 function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-function fleeRandom(){
+no.onmouseenter = () => {
   const a = arena.getBoundingClientRect();
   const b = no.getBoundingClientRect();
-  const nx = clamp(Math.random()*(a.width-b.width), 10, a.width-b.width-10);
-  const ny = clamp(Math.random()*(a.height-b.height), 10, a.height-b.height-10);
-  no.style.left = nx + "px";
-  no.style.top  = ny + "px";
-}
-no.addEventListener("mouseenter", fleeRandom);
-no.addEventListener("touchstart", (e)=>{ e.preventDefault(); fleeRandom(); }, {passive:false});
+  no.style.left = clamp(Math.random()*(a.width-b.width),10,a.width-b.width-10)+"px";
+  no.style.top  = clamp(Math.random()*(a.height-b.height),10,a.height-b.height-10)+"px";
+};
 
 /* =====================
-   🌸 FAST CANVAS SAKURA BLIZZARD
-   (real petal shape + glow, super smooth)
+   🌸 + ✨ BACKGROUND SPAWN
 ===================== */
-const canvas = document.getElementById("sakuraCanvas");
-const ctx = canvas.getContext("2d");
+const bg = document.getElementById("bgLayer");
 
-let W = 0, H = 0, DPR = 1;
-
-function resize(){
-  DPR = Math.min(2, window.devicePixelRatio || 1); // cap DPR for performance
-  W = window.innerWidth;
-  H = window.innerHeight;
-  canvas.width  = Math.floor(W * DPR);
-  canvas.height = Math.floor(H * DPR);
-  canvas.style.width = W + "px";
-  canvas.style.height = H + "px";
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-window.addEventListener("resize", resize);
-resize();
-
-function rand(min,max){ return Math.random()*(max-min)+min; }
-
-// --- Pre-render petal sprites (2 variants) ---
-function makePetalSprite(size, variant){
-  const off = document.createElement("canvas");
-  off.width = off.height = size;
-  const c = off.getContext("2d");
-  c.translate(size/2, size/2);
-
-  // glow base (draw behind)
-  c.globalAlpha = 0.35;
-  c.fillStyle = "rgba(255,255,255,0.9)";
-  c.beginPath();
-  c.ellipse(0, 0, size*0.26, size*0.18, 0, 0, Math.PI*2);
-  c.fill();
-
-  // petal gradient
-  const g = c.createLinearGradient(0, -size*0.35, 0, size*0.35);
-  g.addColorStop(0,   "#fff6fb");
-  g.addColorStop(0.55,"#ffb5d6");
-  g.addColorStop(1,   variant === 0 ? "#f06aa9" : "#ea4f9a");
-
-  c.globalAlpha = 1;
-  c.fillStyle = g;
-
-  // petal shape
-  c.beginPath();
-  c.moveTo(0, -size*0.40);
-  c.bezierCurveTo(size*0.36, -size*0.22, size*0.46, size*0.22, 0, size*0.44);
-  c.bezierCurveTo(-size*0.46, size*0.22, -size*0.36, -size*0.22, 0, -size*0.40);
-  c.closePath();
-  c.fill();
-
-  // highlight streak
-  c.globalAlpha = 0.30;
-  c.fillStyle = "rgba(255,255,255,0.95)";
-  c.beginPath();
-  c.ellipse(-size*0.07, -size*0.10, size*0.12, size*0.20, -0.4, 0, Math.PI*2);
-  c.fill();
-
-  return off;
+/* Cherry blossoms */
+function spawnBlossom(){
+  const b = document.createElement("div");
+  b.className = "blossom";
+  b.textContent = "🌸";
+  b.style.left = Math.random()*100+"vw";
+  b.style.fontSize = (22 + Math.random()*18)+"px";
+  b.style.animationDuration =
+    (14 + Math.random()*10)+"s, "+(6 + Math.random()*6)+"s";
+  bg.appendChild(b);
+  setTimeout(()=>b.remove(),25000);
 }
 
-const SPRITES = [];
-for (let i=0; i<6; i++){
-  const s = 40 + i*8; // 40..80
-  SPRITES.push(makePetalSprite(s, 0));
-  SPRITES.push(makePetalSprite(s, 1));
+/* Glitter */
+function spawnGlitter(){
+  const g = document.createElement("div");
+  g.className = "glitter";
+  g.style.left = Math.random()*100+"vw";
+  g.style.animationDuration =
+    (16 + Math.random()*12)+"s, "+(5 + Math.random()*5)+"s";
+  g.style.opacity = 0.4 + Math.random()*0.5;
+  bg.appendChild(g);
+  setTimeout(()=>g.remove(),30000);
 }
 
-// Petal physics
-const petals = [];
-let targetCount = 0;
-
-function recomputeCount(){
-  // density scales with area, capped for performance
-  const area = W * H;
-  const base = area / 16000; // tweak density
-  targetCount = Math.max(90, Math.min(260, Math.floor(base)));
-}
-recomputeCount();
-
-window.addEventListener("resize", () => {
-  recomputeCount();
-  // gently adjust array length
-  if (petals.length > targetCount) petals.length = targetCount;
-});
-
-// Create a petal
-function newPetal(spawnTop=false){
-  const sprite = SPRITES[Math.floor(Math.random()*SPRITES.length)];
-  return {
-    sprite,
-    x: rand(0, W),
-    y: spawnTop ? rand(-H, 0) : rand(0, H),
-    vy: rand(0.8, 2.6),
-    vx: rand(-0.8, 0.8),
-    wob: rand(0, Math.PI*2),
-    wobSpd: rand(0.008, 0.03),
-    drift: rand(-1.2, 1.2),
-    rot: rand(0, Math.PI*2),
-    rotSpd: rand(-0.03, 0.03),
-    alpha: rand(0.75, 1.0),
-    scale: rand(0.55, 1.15),
-  };
-}
-
-// init petals
-while (petals.length < targetCount) petals.push(newPetal(true));
-
-let last = performance.now();
-
-function frame(now){
-  const dt = Math.min(32, now - last) / 16.6667; // normalize ~60fps
-  last = now;
-
-  ctx.clearRect(0,0,W,H);
-
-  // global glow softening
-  // (keep small for perf)
-  ctx.globalCompositeOperation = "source-over";
-
-  for (let i=0; i<petals.length; i++){
-    const p = petals[i];
-
-    p.wob += p.wobSpd * dt;
-    p.rot += p.rotSpd * dt;
-
-    // snowstorm wind: sine + drift
-    const wind = Math.sin(p.wob) * 1.4 + p.drift;
-    p.x += (p.vx + wind) * dt * 1.8;
-    p.y += p.vy * dt * 1.6;
-
-    // wrap / respawn
-    if (p.y > H + 80){
-      petals[i] = newPetal(true);
-      continue;
-    }
-    if (p.x < -100) p.x = W + 100;
-    if (p.x > W + 100) p.x = -100;
-
-    // draw with glow: draw sprite twice (soft halo + main)
-    const img = p.sprite;
-    const w = img.width * p.scale;
-    const h = img.height * p.scale;
-
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-
-    // halo
-    ctx.globalAlpha = p.alpha * 0.35;
-    ctx.shadowColor = "rgba(255, 220, 238, 0.95)";
-    ctx.shadowBlur = 18;
-    ctx.drawImage(img, -w/2, -h/2, w, h);
-
-    // main
-    ctx.globalAlpha = p.alpha;
-    ctx.shadowBlur = 0;
-    ctx.drawImage(img, -w/2, -h/2, w, h);
-
-    ctx.restore();
-  }
-
-  // keep density to targetCount
-  if (petals.length < targetCount) {
-    const add = Math.min(6, targetCount - petals.length);
-    for (let k=0; k<add; k++) petals.push(newPetal(true));
-  }
-
-  requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
+/* Density (flüssig) */
+setInterval(spawnBlossom, 350);
+setInterval(spawnGlitter, 200);
 </script>
 
 </body>
