@@ -1,302 +1,345 @@
 
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>💘 Valentine?</title>
+  <title>Will you be my valentine?</title>
 
   <style>
     :root{
-      --bg:#0b1020;
-      --text:#eef2ff;
-      --muted:#b7c0ff;
+      --bg: #f3b6c8;         /* pastel pink */
+      --card: #f6f2f2;       /* warm off-white */
+      --shadow: rgba(0,0,0,.18);
+      --text: #111;
+      --muted: #8f8f8f;
+      --yes: #e61b6a;        /* hot pink */
+      --yesShadow: rgba(230,27,106,.22);
     }
+
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
       min-height:100vh;
       display:grid;
       place-items:center;
-      background:
-        radial-gradient(1200px 600px at 50% 20%, #ff4d8d22, transparent),
-        radial-gradient(900px 500px at 80% 80%, #7c3aed22, transparent),
-        var(--bg);
+      background: var(--bg);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color:var(--text);
-      padding:24px;
       overflow:hidden;
+      padding:22px;
     }
 
     .card{
-      width:min(560px, 100%);
-      background: linear-gradient(180deg, #ffffff10, #ffffff05);
-      border:1px solid #ffffff18;
-      border-radius:24px;
-      padding:28px;
-      box-shadow: 0 20px 60px #00000055;
+      width:min(720px, 92vw);
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 18px 45px var(--shadow);
+      padding: 34px 28px 18px;
       text-align:center;
-      backdrop-filter: blur(8px);
-      z-index:2;
+      position:relative;
+    }
+
+    .icon{
+      width:70px;
+      height:70px;
+      margin: 0 auto 14px;
+      display:block;
     }
 
     h1{
-      margin:0 0 10px;
-      font-size: clamp(26px, 4vw, 38px);
-    }
-
-    p{
       margin:0 0 22px;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.5;
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      text-transform: lowercase;
+      color: var(--text);
     }
 
-    .btns{
-      display:flex;
-      gap:16px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:6px;
+    .controls{
+      position:relative;
+      width: 420px;
+      max-width: 92%;
+      height: 86px;
+      margin: 0 auto;
     }
-
-    button{
-      border:0;
-      border-radius:999px;
-      padding:14px 24px;
-      font-size:16px;
-      cursor:pointer;
-      font-weight:800;
-      user-select:none;
-      transition: transform .08s ease, opacity .2s ease, left .08s ease, top .08s ease;
-      touch-action: manipulation;
-      will-change: left, top, transform;
-    }
-
-    button:active{ transform: scale(0.96); }
 
     #yes{
-      background: linear-gradient(90deg, #ff4d8d, #ff6b6b);
-      color:#1a0b12;
+      position:absolute;
+      left: 40px;
+      top: 16px;
+      border:0;
+      background: var(--yes);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 14px 36px;
+      border-radius: 999px;
+      cursor:pointer;
+      box-shadow: 0 16px 28px var(--yesShadow);
+      transition: transform .08s ease;
+      user-select:none;
+    }
+    #yes:active{ transform: scale(0.97); }
+
+    /* "No" as tiny text, like in the video */
+    #no{
+      position:absolute;
+      left: 295px;
+      top: 34px;
+      background: transparent;
+      border:0;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor:pointer;
+      user-select:none;
+
+      /* will get faster dynamically */
+      transition: left 140ms ease, top 140ms ease, transform 120ms ease;
+      will-change: left, top, transform;
+      touch-action: manipulation;
     }
 
-    #no{
-      background:#ffffff12;
-      color:var(--text);
-      border:1px solid #ffffff22;
-      position:fixed;
-      left: calc(50% + 90px);
-      top:  calc(50% + 48px);
+    .caption{
+      margin-top: 14px;
+      font-size: 12px;
+      color: #555;
+    }
+    .caption span{
+      color:#7a3cff;
     }
 
     #result{
-      margin-top:20px;
-      font-size:18px;
-      font-weight:800;
-      min-height:28px;
+      margin-top: 14px;
+      min-height: 22px;
+      font-weight: 800;
+      color: #1a1a1a;
     }
 
-    .small{
-      margin-top:10px;
-      font-size:13px;
-      opacity:.78;
-    }
-
-    /* 💖 Herzchen */
+    /* Hearts for YES */
     .heart{
       position: fixed;
-      left: 0;
-      top: 0;
-      transform: translate(-50%, -50%);
+      left:0; top:0;
+      transform: translate(-50%,-50%);
       font-size: 18px;
-      pointer-events: none;
-      z-index: 1;
+      pointer-events:none;
+      z-index: 5;
       animation: floatUp var(--dur, 1200ms) ease-out forwards;
-      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
-      opacity: 0.95;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,.18));
+      opacity:.95;
     }
-
     @keyframes floatUp{
-      0%   { transform: translate(var(--x), var(--y)) scale(0.9); opacity: 0.0; }
-      10%  { opacity: 1; }
-      100% { transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) - var(--dy))) scale(1.45);
+      0%   { transform: translate(var(--x), var(--y)) scale(.9); opacity: 0; }
+      12%  { opacity: 1; }
+      100% { transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) - var(--dy))) scale(1.5);
              opacity: 0; }
     }
   </style>
 </head>
 
 <body>
-  <main class="card">
-    <h1>💘 Priya my Baby, would u be my Valentine?</h1>
-    <p>I love u. Say yes 😌</p>
+  <main class="card" id="card">
+    <!-- cat icon with heart (simple SVG) -->
+    <svg class="icon" viewBox="0 0 120 120" aria-hidden="true">
+      <!-- heart -->
+      <path d="M88 26c-6 0-10 4-12 7-2-3-6-7-12-7-7 0-13 6-13 14 0 14 25 26 25 26s25-12 25-26c0-8-6-14-13-14z"
+            fill="#e61b6a"/>
+      <!-- face -->
+      <circle cx="60" cy="68" r="34" fill="#f3b38b"/>
+      <!-- ears -->
+      <path d="M38 42 L28 58 L46 56 Z" fill="#f3b38b"/>
+      <path d="M82 42 L92 58 L74 56 Z" fill="#f3b38b"/>
+      <!-- eyes -->
+      <circle cx="48" cy="70" r="3.2" fill="#111"/>
+      <circle cx="72" cy="70" r="3.2" fill="#111"/>
+      <!-- nose -->
+      <circle cx="60" cy="78" r="2.6" fill="#ff6b6b"/>
+    </svg>
 
-    <div class="btns">
-      <button id="yes">Yes 💖</button>
-      <!-- Nein ist fixed-position, damit es frei fliehen kann -->
-      <button id="no">No 🙃</button>
+    <h1 id="title">name will you be my valentine?</h1>
+
+    <div class="controls" id="arena">
+      <button id="yes">Yes</button>
+      <button id="no">No</button>
     </div>
 
+    <div class="caption">"No" seems a bit shy <span>😈</span></div>
     <div id="result" aria-live="polite"></div>
-    <div class="small">PS: Der Nein-Button ist schüchtern 😄</div>
   </main>
 
   <script>
+    // ✅ Change this to your girlfriend's name
+    const name = "nirali";
+
+    const title = document.getElementById("title");
+    const card  = document.getElementById("card");
+    const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yes");
     const noBtn  = document.getElementById("no");
     const result = document.getElementById("result");
 
-    // --- Herzchen-Animation ---
-    const heartChars = ["💖","💘","💝","💗","💓","💕"];
-    function spawnHearts(amount = 28) {
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
+    title.textContent = `${name.toLowerCase()} will you be my valentine?`;
 
-      for (let i = 0; i < amount; i++) {
+    // Hearts for YES
+    const heartChars = ["💖","💘","💝","💗","💓","💕"];
+    function spawnHearts(amount = 30){
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      for(let i=0;i<amount;i++){
         const h = document.createElement("div");
         h.className = "heart";
-        h.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
-
-        const x = cx + (Math.random() * 220 - 110);
-        const y = cy + (Math.random() * 140 - 70);
-
-        const dx = (Math.random() * 260 - 130) + "px";
-        const dy = (260 + Math.random() * 380) + "px";
-        const dur = (900 + Math.random() * 900) + "ms";
-
-        h.style.setProperty("--x", x + "px");
-        h.style.setProperty("--y", y + "px");
+        h.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+        const x = cx + (Math.random()*240 - 120);
+        const y = cy + (Math.random()*140 - 70);
+        const dx = (Math.random()*260 - 130) + "px";
+        const dy = (260 + Math.random()*380) + "px";
+        const dur = (900 + Math.random()*900) + "ms";
+        h.style.setProperty("--x", x+"px");
+        h.style.setProperty("--y", y+"px");
         h.style.setProperty("--dx", dx);
         h.style.setProperty("--dy", dy);
         h.style.setProperty("--dur", dur);
-
         document.body.appendChild(h);
         h.addEventListener("animationend", () => h.remove());
       }
     }
 
     yesBtn.addEventListener("click", () => {
-      result.textContent = "Yaaay! 🥰 We have a Date! 💐";
+      result.textContent = "Yaaay! 💐";
       spawnHearts(38);
-
-      yesBtn.disabled = true;
-      noBtn.disabled = true;
-      yesBtn.style.opacity = 0.9;
-      noBtn.style.opacity  = 0.4;
-      noBtn.style.pointerEvents = "none";
     });
 
-    // --- Intelligentes Fliehen vom Cursor/Finger ---
-    let fleeLevel = 0;      // wird jedes Mal höher
-    let cooldownUntil = 0;  // wird immer kürzer
-
-    // Aktuelle Position des Buttons (damit wir nicht jedes Mal layout messen müssen)
-    let btnX = null;
-    let btnY = null;
+    // --- No button: shy, moves inside the card/arena ---
+    let fleeLevel = 0;
+    let cooldownUntil = 0;
 
     function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
-    function ensureInitialPos(){
-      if (btnX === null || btnY === null) {
-        const rect = noBtn.getBoundingClientRect();
-        btnX = rect.left;
-        btnY = rect.top;
-      }
-    }
-
-    function fleeFrom(px, py){
-      const now = Date.now();
-      if (now < cooldownUntil) return;
-
-      ensureInitialPos();
-      fleeLevel++;
-
-      const padding = 14;
-
+    // keep "No" inside arena, and avoid landing on top of YES
+    function randomSpotAvoidingYes(){
+      const a = arena.getBoundingClientRect();
+      const yes = yesBtn.getBoundingClientRect();
       const bw = noBtn.offsetWidth;
       const bh = noBtn.offsetHeight;
 
-      const maxX = window.innerWidth  - bw - padding;
-      const maxY = window.innerHeight - bh - padding;
+      const padding = 10;
+      const maxLeft = a.width  - bw - padding;
+      const maxTop  = a.height - bh - padding;
 
-      // Button-Mitte
-      const cx = btnX + bw/2;
-      const cy = btnY + bh/2;
+      // try a few times to avoid YES area
+      for(let i=0;i<12;i++){
+        const left = padding + Math.random()*maxLeft;
+        const top  = padding + Math.random()*maxTop;
 
-      // Vektor weg vom Pointer (px,py)
+        const absLeft = a.left + left;
+        const absTop  = a.top  + top;
+
+        const overlapsYes =
+          absLeft < yes.right && absLeft + bw > yes.left &&
+          absTop  < yes.bottom && absTop + bh > yes.top;
+
+        if(!overlapsYes) return { left, top };
+      }
+      return { left: padding + Math.random()*maxLeft, top: padding + Math.random()*maxTop };
+    }
+
+    function fleeFrom(pointerX, pointerY){
+      const now = Date.now();
+      if(now < cooldownUntil) return;
+
+      fleeLevel++;
+
+      const a = arena.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      const bw = b.width, bh = b.height;
+      const padding = 10;
+
+      // pointer relative to arena
+      const px = pointerX - a.left;
+      const py = pointerY - a.top;
+
+      // current button position relative to arena
+      const currentLeft = parseFloat(noBtn.style.left) || (b.left - a.left);
+      const currentTop  = parseFloat(noBtn.style.top)  || (b.top  - a.top);
+
+      const cx = currentLeft + bw/2;
+      const cy = currentTop  + bh/2;
+
+      // vector away from pointer
       let vx = cx - px;
       let vy = cy - py;
-
-      // Falls Pointer exakt in der Mitte ist -> random Richtung
-      if (Math.abs(vx) < 0.001 && Math.abs(vy) < 0.001) {
-        vx = (Math.random() - 0.5);
-        vy = (Math.random() - 0.5);
+      if(Math.abs(vx) < 0.001 && Math.abs(vy) < 0.001){
+        vx = (Math.random()-0.5);
+        vy = (Math.random()-0.5);
       }
-
-      // Normalisieren
       const len = Math.hypot(vx, vy);
       vx /= len; vy /= len;
 
-      // Je höher Level, desto weiter springt er
-      const baseJump = 140;
-      const jump = Math.min(520, baseJump + fleeLevel * 22);
+      // small-ish hops like the video (not across the whole screen)
+      const jump = Math.min(180, 70 + fleeLevel * 10);
+      const jitter = Math.min(55, 14 + fleeLevel * 2);
 
-      // Neue Position: weg vom Pointer + bisschen Randomness damit es “lebendig” wirkt
-      const jitter = Math.min(90, 20 + fleeLevel * 3);
-      let newX = btnX + vx * jump + (Math.random()*jitter - jitter/2);
-      let newY = btnY + vy * jump + (Math.random()*jitter - jitter/2);
+      let newLeft = currentLeft + vx*jump + (Math.random()*jitter - jitter/2);
+      let newTop  = currentTop  + vy*jump + (Math.random()*jitter - jitter/2);
 
-      // Im Bildschirm halten
-      newX = clamp(newX, padding, maxX);
-      newY = clamp(newY, padding, maxY);
+      const maxLeft = a.width  - bw - padding;
+      const maxTop  = a.height - bh - padding;
 
-      // Setzen
-      btnX = newX;
-      btnY = newY;
+      newLeft = clamp(newLeft, padding, maxLeft);
+      newTop  = clamp(newTop,  padding, maxTop);
 
-      noBtn.style.left = btnX + "px";
-      noBtn.style.top  = btnY + "px";
+      // if it still lands on YES, pick a safe random spot
+      const yes = yesBtn.getBoundingClientRect();
+      const absLeft = a.left + newLeft;
+      const absTop  = a.top  + newTop;
 
-      // Extra “Panik”
-      const rot = (Math.random()*10 - 5) * Math.min(1.8, 1 + fleeLevel*0.06);
-      noBtn.style.transform = `rotate(${rot}deg) scale(${1 + Math.min(0.35, fleeLevel*0.03)})`;
-      setTimeout(() => { noBtn.style.transform = "none"; }, 110);
+      const overlapsYes =
+        absLeft < yes.right && absLeft + bw > yes.left &&
+        absTop  < yes.bottom && absTop + bh > yes.top;
 
-      // Cooldown wird immer kürzer (=> schneller)
-      const cd = Math.max(25, 180 - fleeLevel * 12);
+      if(overlapsYes){
+        const spot = randomSpotAvoidingYes();
+        newLeft = spot.left;
+        newTop  = spot.top;
+      }
+
+      // faster over time
+      const t = Math.max(35, 140 - fleeLevel * 10);
+      noBtn.style.transition = `left ${t}ms ease, top ${t}ms ease, transform 120ms ease`;
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top  = newTop  + "px";
+
+      // tiny shy wobble
+      const rot = (Math.random()*8 - 4) * Math.min(1.5, 1 + fleeLevel*0.05);
+      noBtn.style.transform = `rotate(${rot}deg)`;
+      setTimeout(() => noBtn.style.transform = "none", 120);
+
+      const cd = Math.max(18, 120 - fleeLevel * 9);
       cooldownUntil = now + cd;
     }
 
-    // Desktop: Maus kommt ran -> flieh weg von Mausposition
-    noBtn.addEventListener("mousemove", (e) => {
-      fleeFrom(e.clientX, e.clientY);
-    });
+    // Desktop: triggers when you try to touch it with the mouse
+    noBtn.addEventListener("mouseenter", (e) => fleeFrom(e.clientX, e.clientY));
+    noBtn.addEventListener("mousemove",  (e) => fleeFrom(e.clientX, e.clientY));
 
-    // Wenn Maus nur reingeht (z.B. ganz kurz)
-    noBtn.addEventListener("mouseenter", (e) => {
-      fleeFrom(e.clientX, e.clientY);
-    });
-
-    // Mobile: Touch -> flieh weg vom Finger
+    // Mobile: triggers on touch
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       const t = e.touches[0];
       fleeFrom(t.clientX, t.clientY);
     }, { passive: false });
 
-    // Pointer Events: gut für Tablets / Stylus / Hybrid
-    noBtn.addEventListener("pointerenter", (e) => {
-      fleeFrom(e.clientX, e.clientY);
-    });
+    // optional: also flee when pointer comes close (feels like the video)
+    arena.addEventListener("mousemove", (e) => {
+      const r = noBtn.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width/2);
+      const dy = e.clientY - (r.top  + r.height/2);
+      const dist = Math.hypot(dx, dy);
 
-    // Falls Fenstergröße sich ändert, Position neu clampen
-    window.addEventListener("resize", () => {
-      if (btnX === null) return;
-      const padding = 14;
-      const bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
-      btnX = clamp(btnX, padding, window.innerWidth - bw - padding);
-      btnY = clamp(btnY, padding, window.innerHeight - bh - padding);
-      noBtn.style.left = btnX + "px";
-      noBtn.style.top  = btnY + "px";
+      // only react when close to it
+      if(dist < 70) fleeFrom(e.clientX, e.clientY);
     });
   </script>
 </body>
