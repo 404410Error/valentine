@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Will you be my Valentine?</title>
 
 <style>
 :root{
-  --bg1:#f6c1d6;
-  --bg2:#e9a6c2;
+  --bg1:#f7c3d9;
+  --bg2:#eaa0c2;
   --card:#f6f2f2;
   --text:#111;
   --muted:#8f8f8f;
@@ -28,78 +28,29 @@ body{
   padding:24px;
 }
 
-/* =====================
-   🌸 BLOSSOM + ✨ GLITTER LAYER
-===================== */
-.bg-layer{
+/* FAST background canvas */
+#fx{
   position:fixed;
   inset:0;
-  pointer-events:none;
+  width:100vw;
+  height:100vh;
   z-index:1;
+  pointer-events:none;
 }
 
-/* Blossoms (BLEIBEN WIE SIE WAREN) */
-.blossom{
-  position:absolute;
-  top:-10%;
-  font-size:26px;
-  opacity:.9;
-  animation:
-    blossomFall linear infinite,
-    blossomSway ease-in-out infinite;
-}
-
-/* Glitter (NEU, leicht & flüssig) */
-.glitter{
-  position:absolute;
-  top:-10%;
-  width:3px;
-  height:3px;
-  border-radius:50%;
-  background:rgba(255,255,255,.95);
-  box-shadow:
-    0 0 6px rgba(255,255,255,.9),
-    0 0 12px rgba(255,200,230,.8);
-  opacity:.6;
-  animation:
-    glitterFall linear infinite,
-    glitterDrift ease-in-out infinite;
-}
-
-@keyframes blossomFall{
-  from{ transform:translateY(-10vh) rotate(0deg); }
-  to{ transform:translateY(120vh) rotate(360deg); }
-}
-@keyframes blossomSway{
-  0%{ margin-left:0; }
-  50%{ margin-left:60px; }
-  100%{ margin-left:0; }
-}
-
-@keyframes glitterFall{
-  from{ transform:translateY(-10vh); }
-  to{ transform:translateY(120vh); }
-}
-@keyframes glitterDrift{
-  0%{ margin-left:0; }
-  50%{ margin-left:30px; }
-  100%{ margin-left:0; }
-}
-
-/* =====================
-   CARD
-===================== */
+/* Card */
 .card{
   position:relative;
   z-index:2;
-  width:min(760px,94vw);
+  width:min(760px, 94vw);
   background:var(--card);
-  border-radius:20px;
-  box-shadow:0 18px 50px rgba(0,0,0,.2);
-  padding:34px 28px 20px;
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  padding:36px 28px 22px;
   text-align:center;
 }
 
+/* Icon */
 .icon{
   width:72px;
   height:72px;
@@ -108,14 +59,16 @@ body{
   display:block;
 }
 
+/* Title */
 h1{
   margin:0 0 22px;
-  font-size:clamp(22px,3.5vw,34px);
+  font-size:clamp(22px, 3.5vw, 34px);
   font-weight:800;
   text-transform:lowercase;
   color:var(--text);
 }
 
+/* Buttons */
 .controls{
   position:relative;
   width:420px;
@@ -136,7 +89,7 @@ h1{
   cursor:pointer;
   background:var(--yes);
   color:white;
-  box-shadow:0 14px 28px rgba(230,27,106,.25);
+  box-shadow:0 18px 36px rgba(230,27,106,.35);
 }
 #yes:active{ transform:scale(.97); }
 
@@ -150,6 +103,8 @@ h1{
   font-size:13px;
   color:var(--muted);
   cursor:pointer;
+  transition:left .12s ease, top .12s ease;
+  touch-action:manipulation;
 }
 
 .caption{
@@ -167,13 +122,10 @@ h1{
 </head>
 
 <body>
-
-<!-- 🌸 + ✨ Background -->
-<div class="bg-layer" id="bgLayer"></div>
+<canvas id="fx"></canvas>
 
 <main class="card">
   <img class="icon" src="icon.png" alt="icon">
-
   <h1 id="title">priya will you be my valentine?</h1>
 
   <div class="controls" id="arena">
@@ -186,65 +138,209 @@ h1{
 </main>
 
 <script>
-/* =====================
-   NAME
-===================== */
-const name="Priya";
+/* NAME */
+const name = "Priya";
 document.getElementById("title").textContent =
-`${name.toLowerCase()} will you be my valentine?`;
+  `${name.toLowerCase()} will you be my valentine?`;
 
 /* YES */
-document.getElementById("yes").onclick=()=>{
-  document.getElementById("result").textContent="Yaaay 💐";
+document.getElementById("yes").onclick = () => {
+  document.getElementById("result").textContent = "Yaaay 💐";
 };
 
 /* NO ESCAPE */
-const no=document.getElementById("no");
-const arena=document.getElementById("arena");
-function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-no.onmouseenter=()=>{
-  const a=arena.getBoundingClientRect();
-  const b=no.getBoundingClientRect();
-  no.style.left=clamp(Math.random()*(a.width-b.width),10,a.width-b.width-10)+"px";
-  no.style.top =clamp(Math.random()*(a.height-b.height),10,a.height-b.height-10)+"px";
-};
+const no = document.getElementById("no");
+const arena = document.getElementById("arena");
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function fleeRandom(){
+  const a = arena.getBoundingClientRect();
+  const b = no.getBoundingClientRect();
+  const nx = clamp(Math.random()*(a.width-b.width), 10, a.width-b.width-10);
+  const ny = clamp(Math.random()*(a.height-b.height), 10, a.height-b.height-10);
+  no.style.left = nx + "px";
+  no.style.top  = ny + "px";
+}
+no.addEventListener("mouseenter", fleeRandom);
+no.addEventListener("touchstart", (e)=>{ e.preventDefault(); fleeRandom(); }, {passive:false});
 
-/* =====================
-   🌸 BLOSSOMS (UNVERÄNDERT)
-===================== */
-const bg=document.getElementById("bgLayer");
+/* =========================
+   BACKGROUND: REAL PETALS + GLITTER (CANVAS, FLUID)
+   - NO emoji/icons
+========================= */
+const canvas = document.getElementById("fx");
+const ctx = canvas.getContext("2d");
 
-function spawnBlossom(){
-  const b=document.createElement("div");
-  b.className="blossom";
-  b.textContent="🌸";
-  b.style.left=Math.random()*100+"vw";
-  b.style.fontSize=(22+Math.random()*18)+"px";
-  b.style.animationDuration=
-    (14+Math.random()*10)+"s,"+(6+Math.random()*6)+"s";
-  bg.appendChild(b);
-  setTimeout(()=>b.remove(),25000);
+let W=0, H=0, DPR=1;
+
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+/* Pre-render petal sprites */
+function makePetalSprite(size, variant){
+  const off = document.createElement("canvas");
+  off.width = off.height = size;
+  const c = off.getContext("2d");
+  c.translate(size/2, size/2);
+
+  // petal gradient
+  const g = c.createLinearGradient(0, -size*0.35, 0, size*0.35);
+  g.addColorStop(0,   "#fff7fb");
+  g.addColorStop(0.55,"#ffb5d6");
+  g.addColorStop(1,   variant===0 ? "#f06aa9" : "#ea4f9a");
+
+  // petal shape
+  c.fillStyle = g;
+  c.beginPath();
+  c.moveTo(0, -size*0.40);
+  c.bezierCurveTo(size*0.36, -size*0.22, size*0.48, size*0.22, 0, size*0.46);
+  c.bezierCurveTo(-size*0.48, size*0.22, -size*0.36, -size*0.22, 0, -size*0.40);
+  c.closePath();
+  c.fill();
+
+  // highlight
+  c.globalAlpha = 0.28;
+  c.fillStyle = "rgba(255,255,255,0.95)";
+  c.beginPath();
+  c.ellipse(-size*0.08, -size*0.10, size*0.12, size*0.20, -0.4, 0, Math.PI*2);
+  c.fill();
+
+  return off;
 }
 
-/* =====================
-   ✨ GLITTER (NEU, ADD-ON)
-===================== */
-function spawnGlitter(){
-  const g=document.createElement("div");
-  g.className="glitter";
-  g.style.left=Math.random()*100+"vw";
-  g.style.animationDuration=
-    (18+Math.random()*10)+"s,"+(6+Math.random()*6)+"s";
-  g.style.opacity=0.3+Math.random()*0.5;
-  bg.appendChild(g);
-  setTimeout(()=>g.remove(),30000);
+const PETAL_SPRITES = [];
+for (let i=0;i<6;i++){
+  const s = 36 + i*8;
+  PETAL_SPRITES.push(makePetalSprite(s,0));
+  PETAL_SPRITES.push(makePetalSprite(s,1));
 }
 
-/* Dichte – flüssig */
-setInterval(spawnBlossom, 350);
-setInterval(spawnGlitter, 140);
+/* Particles */
+const petals = [];
+const glitter = [];
+
+function init(){
+  petals.length = 0;
+  glitter.length = 0;
+
+  // density scaled & capped
+  const targetPetals = Math.max(70, Math.min(180, Math.floor((W*H)/17000)));
+  const targetGlitter = Math.max(110, Math.min(260, Math.floor((W*H)/11000)));
+
+  for (let i=0;i<targetPetals;i++){
+    petals.push({
+      sprite: PETAL_SPRITES[Math.floor(Math.random()*PETAL_SPRITES.length)],
+      x: rand(0,W), y: rand(0,H),
+      vy: rand(0.7,2.2),
+      vx: rand(-0.7,0.7),
+      wob: rand(0,Math.PI*2),
+      wobSpd: rand(0.01,0.03),
+      rot: rand(0,Math.PI*2),
+      rotSpd: rand(-0.03,0.03),
+      a: rand(0.75,1),
+      s: rand(0.6,1.15),
+      drift: rand(-1.1,1.1),
+    });
+  }
+
+  for (let i=0;i<targetGlitter;i++){
+    glitter.push({
+      x: rand(0,W), y: rand(0,H),
+      vy: rand(0.5,1.8),
+      vx: rand(-0.2,0.2),
+      tw: rand(0,Math.PI*2),
+      twSpd: rand(0.03,0.09),
+      a: rand(0.25,0.85),
+      r: rand(0.9,2.2),
+    });
+  }
+}
+init();
+window.addEventListener("resize", init);
+
+let last = performance.now();
+
+function loop(now){
+  const dt = Math.min(32, now-last)/16.6667;
+  last = now;
+
+  ctx.clearRect(0,0,W,H);
+
+  /* draw petals */
+  for (let i=0;i<petals.length;i++){
+    const p = petals[i];
+    p.wob += p.wobSpd*dt;
+    p.rot += p.rotSpd*dt;
+
+    const wind = Math.sin(p.wob)*1.2 + p.drift;
+    p.x += (p.vx + wind)*dt*1.7;
+    p.y += p.vy*dt*1.6;
+
+    if (p.y > H+80){ p.y = -80; p.x = rand(0,W); }
+    if (p.x < -100) p.x = W+100;
+    if (p.x > W+100) p.x = -100;
+
+    const img = p.sprite;
+    const w = img.width*p.s, h = img.height*p.s;
+
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    // glow (cheap via shadow)
+    ctx.globalAlpha = p.a*0.35;
+    ctx.shadowColor = "rgba(255,220,238,0.95)";
+    ctx.shadowBlur = 16;
+    ctx.drawImage(img, -w/2, -h/2, w, h);
+
+    ctx.globalAlpha = p.a;
+    ctx.shadowBlur = 0;
+    ctx.drawImage(img, -w/2, -h/2, w, h);
+
+    ctx.restore();
+  }
+
+  /* draw glitter */
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (let i=0;i<glitter.length;i++){
+    const g = glitter[i];
+    g.tw += g.twSpd*dt;
+    g.x += g.vx*dt*1.2;
+    g.y += g.vy*dt*1.4;
+
+    if (g.y > H+20){ g.y = -20; g.x = rand(0,W); }
+    if (g.x < -20) g.x = W+20;
+    if (g.x > W+20) g.x = -20;
+
+    const pulse = 0.55 + 0.45*Math.sin(g.tw);
+    const a = g.a * pulse;
+
+    ctx.globalAlpha = a;
+    ctx.shadowColor = "rgba(255,255,255,0.9)";
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, g.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 </script>
-
 </body>
 </html>
 
