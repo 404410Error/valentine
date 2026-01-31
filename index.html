@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Will you be my Valentine?</title>
 
 <style>
@@ -29,7 +29,7 @@ body{
 }
 
 /* =====================
-   🌸 BACKGROUND LAYERS
+   🌸 BLOSSOM + ✨ GLITTER LAYER
 ===================== */
 .bg-layer{
   position:fixed;
@@ -38,29 +38,29 @@ body{
   z-index:1;
 }
 
-/* Cherry blossoms */
+/* Blossoms (BLEIBEN WIE SIE WAREN) */
 .blossom{
   position:absolute;
   top:-10%;
   font-size:26px;
-  opacity:0.9;
+  opacity:.9;
   animation:
     blossomFall linear infinite,
     blossomSway ease-in-out infinite;
 }
 
-/* Glitter */
+/* Glitter (NEU, leicht & flüssig) */
 .glitter{
   position:absolute;
   top:-10%;
   width:3px;
   height:3px;
   border-radius:50%;
-  background:rgba(255,255,255,0.9);
+  background:rgba(255,255,255,.95);
   box-shadow:
-    0 0 6px rgba(255,255,255,0.9),
-    0 0 12px rgba(255,200,230,0.8);
-  opacity:0.7;
+    0 0 6px rgba(255,255,255,.9),
+    0 0 12px rgba(255,200,230,.8);
+  opacity:.6;
   animation:
     glitterFall linear infinite,
     glitterDrift ease-in-out infinite;
@@ -82,7 +82,7 @@ body{
 }
 @keyframes glitterDrift{
   0%{ margin-left:0; }
-  50%{ margin-left:40px; }
+  50%{ margin-left:30px; }
   100%{ margin-left:0; }
 }
 
@@ -168,7 +168,7 @@ h1{
 
 <body>
 
-<!-- 🌸🌟 Background -->
+<!-- 🌸 + ✨ Background -->
 <div class="bg-layer" id="bgLayer"></div>
 
 <main class="card">
@@ -189,64 +189,62 @@ h1{
 /* =====================
    NAME
 ===================== */
-const name = "Priya";
+const name="Priya";
 document.getElementById("title").textContent =
-  `${name.toLowerCase()} will you be my valentine?`;
+`${name.toLowerCase()} will you be my valentine?`;
 
-/* =====================
-   YES
-===================== */
-document.getElementById("yes").onclick = () => {
-  document.getElementById("result").textContent = "Yaaay 💐";
+/* YES */
+document.getElementById("yes").onclick=()=>{
+  document.getElementById("result").textContent="Yaaay 💐";
+};
+
+/* NO ESCAPE */
+const no=document.getElementById("no");
+const arena=document.getElementById("arena");
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+no.onmouseenter=()=>{
+  const a=arena.getBoundingClientRect();
+  const b=no.getBoundingClientRect();
+  no.style.left=clamp(Math.random()*(a.width-b.width),10,a.width-b.width-10)+"px";
+  no.style.top =clamp(Math.random()*(a.height-b.height),10,a.height-b.height-10)+"px";
 };
 
 /* =====================
-   NO ESCAPE
+   🌸 BLOSSOMS (UNVERÄNDERT)
 ===================== */
-const no = document.getElementById("no");
-const arena = document.getElementById("arena");
-function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-no.onmouseenter = () => {
-  const a = arena.getBoundingClientRect();
-  const b = no.getBoundingClientRect();
-  no.style.left = clamp(Math.random()*(a.width-b.width),10,a.width-b.width-10)+"px";
-  no.style.top  = clamp(Math.random()*(a.height-b.height),10,a.height-b.height-10)+"px";
-};
+const bg=document.getElementById("bgLayer");
 
-/* =====================
-   🌸 + ✨ BACKGROUND SPAWN
-===================== */
-const bg = document.getElementById("bgLayer");
-
-/* Cherry blossoms */
 function spawnBlossom(){
-  const b = document.createElement("div");
-  b.className = "blossom";
-  b.textContent = "🌸";
-  b.style.left = Math.random()*100+"vw";
-  b.style.fontSize = (22 + Math.random()*18)+"px";
-  b.style.animationDuration =
-    (14 + Math.random()*10)+"s, "+(6 + Math.random()*6)+"s";
+  const b=document.createElement("div");
+  b.className="blossom";
+  b.textContent="🌸";
+  b.style.left=Math.random()*100+"vw";
+  b.style.fontSize=(22+Math.random()*18)+"px";
+  b.style.animationDuration=
+    (14+Math.random()*10)+"s,"+(6+Math.random()*6)+"s";
   bg.appendChild(b);
   setTimeout(()=>b.remove(),25000);
 }
 
-/* Glitter */
+/* =====================
+   ✨ GLITTER (NEU, ADD-ON)
+===================== */
 function spawnGlitter(){
-  const g = document.createElement("div");
-  g.className = "glitter";
-  g.style.left = Math.random()*100+"vw";
-  g.style.animationDuration =
-    (16 + Math.random()*12)+"s, "+(5 + Math.random()*5)+"s";
-  g.style.opacity = 0.4 + Math.random()*0.5;
+  const g=document.createElement("div");
+  g.className="glitter";
+  g.style.left=Math.random()*100+"vw";
+  g.style.animationDuration=
+    (18+Math.random()*10)+"s,"+(6+Math.random()*6)+"s";
+  g.style.opacity=0.3+Math.random()*0.5;
   bg.appendChild(g);
   setTimeout(()=>g.remove(),30000);
 }
 
-/* Density (flüssig) */
+/* Dichte – flüssig */
 setInterval(spawnBlossom, 350);
-setInterval(spawnGlitter, 200);
+setInterval(spawnGlitter, 140);
 </script>
 
 </body>
 </html>
+
