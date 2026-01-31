@@ -1,0 +1,303 @@
+index.html
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💘 Valentine?</title>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#eef2ff;
+      --muted:#b7c0ff;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(1200px 600px at 50% 20%, #ff4d8d22, transparent),
+        radial-gradient(900px 500px at 80% 80%, #7c3aed22, transparent),
+        var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      padding:24px;
+      overflow:hidden;
+    }
+
+    .card{
+      width:min(560px, 100%);
+      background: linear-gradient(180deg, #ffffff10, #ffffff05);
+      border:1px solid #ffffff18;
+      border-radius:24px;
+      padding:28px;
+      box-shadow: 0 20px 60px #00000055;
+      text-align:center;
+      backdrop-filter: blur(8px);
+      z-index:2;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(26px, 4vw, 38px);
+    }
+
+    p{
+      margin:0 0 22px;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .btns{
+      display:flex;
+      gap:16px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    button{
+      border:0;
+      border-radius:999px;
+      padding:14px 24px;
+      font-size:16px;
+      cursor:pointer;
+      font-weight:800;
+      user-select:none;
+      transition: transform .08s ease, opacity .2s ease, left .08s ease, top .08s ease;
+      touch-action: manipulation;
+      will-change: left, top, transform;
+    }
+
+    button:active{ transform: scale(0.96); }
+
+    #yes{
+      background: linear-gradient(90deg, #ff4d8d, #ff6b6b);
+      color:#1a0b12;
+    }
+
+    #no{
+      background:#ffffff12;
+      color:var(--text);
+      border:1px solid #ffffff22;
+      position:fixed;
+      left: calc(50% + 90px);
+      top:  calc(50% + 48px);
+    }
+
+    #result{
+      margin-top:20px;
+      font-size:18px;
+      font-weight:800;
+      min-height:28px;
+    }
+
+    .small{
+      margin-top:10px;
+      font-size:13px;
+      opacity:.78;
+    }
+
+    /* 💖 Herzchen */
+    .heart{
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatUp var(--dur, 1200ms) ease-out forwards;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+      opacity: 0.95;
+    }
+
+    @keyframes floatUp{
+      0%   { transform: translate(var(--x), var(--y)) scale(0.9); opacity: 0.0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) - var(--dy))) scale(1.45);
+             opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>💘 Willst du mein Valentine-Date sein?</h1>
+    <p>Ich hab dich lieb. Sag einfach Ja 😌</p>
+
+    <div class="btns">
+      <button id="yes">Ja 💖</button>
+      <!-- Nein ist fixed-position, damit es frei fliehen kann -->
+      <button id="no">Nein 🙃</button>
+    </div>
+
+    <div id="result" aria-live="polite"></div>
+    <div class="small">PS: Der Nein-Button ist schüchtern 😄</div>
+  </main>
+
+  <script>
+    const yesBtn = document.getElementById("yes");
+    const noBtn  = document.getElementById("no");
+    const result = document.getElementById("result");
+
+    // --- Herzchen-Animation ---
+    const heartChars = ["💖","💘","💝","💗","💓","💕"];
+    function spawnHearts(amount = 28) {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+
+      for (let i = 0; i < amount; i++) {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+
+        const x = cx + (Math.random() * 220 - 110);
+        const y = cy + (Math.random() * 140 - 70);
+
+        const dx = (Math.random() * 260 - 130) + "px";
+        const dy = (260 + Math.random() * 380) + "px";
+        const dur = (900 + Math.random() * 900) + "ms";
+
+        h.style.setProperty("--x", x + "px");
+        h.style.setProperty("--y", y + "px");
+        h.style.setProperty("--dx", dx);
+        h.style.setProperty("--dy", dy);
+        h.style.setProperty("--dur", dur);
+
+        document.body.appendChild(h);
+        h.addEventListener("animationend", () => h.remove());
+      }
+    }
+
+    yesBtn.addEventListener("click", () => {
+      result.textContent = "Yaaay! 🥰 Dann ist es ein Date! 💐";
+      spawnHearts(38);
+
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      yesBtn.style.opacity = 0.9;
+      noBtn.style.opacity  = 0.4;
+      noBtn.style.pointerEvents = "none";
+    });
+
+    // --- Intelligentes Fliehen vom Cursor/Finger ---
+    let fleeLevel = 0;      // wird jedes Mal höher
+    let cooldownUntil = 0;  // wird immer kürzer
+
+    // Aktuelle Position des Buttons (damit wir nicht jedes Mal layout messen müssen)
+    let btnX = null;
+    let btnY = null;
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function ensureInitialPos(){
+      if (btnX === null || btnY === null) {
+        const rect = noBtn.getBoundingClientRect();
+        btnX = rect.left;
+        btnY = rect.top;
+      }
+    }
+
+    function fleeFrom(px, py){
+      const now = Date.now();
+      if (now < cooldownUntil) return;
+
+      ensureInitialPos();
+      fleeLevel++;
+
+      const padding = 14;
+
+      const bw = noBtn.offsetWidth;
+      const bh = noBtn.offsetHeight;
+
+      const maxX = window.innerWidth  - bw - padding;
+      const maxY = window.innerHeight - bh - padding;
+
+      // Button-Mitte
+      const cx = btnX + bw/2;
+      const cy = btnY + bh/2;
+
+      // Vektor weg vom Pointer (px,py)
+      let vx = cx - px;
+      let vy = cy - py;
+
+      // Falls Pointer exakt in der Mitte ist -> random Richtung
+      if (Math.abs(vx) < 0.001 && Math.abs(vy) < 0.001) {
+        vx = (Math.random() - 0.5);
+        vy = (Math.random() - 0.5);
+      }
+
+      // Normalisieren
+      const len = Math.hypot(vx, vy);
+      vx /= len; vy /= len;
+
+      // Je höher Level, desto weiter springt er
+      const baseJump = 140;
+      const jump = Math.min(520, baseJump + fleeLevel * 22);
+
+      // Neue Position: weg vom Pointer + bisschen Randomness damit es “lebendig” wirkt
+      const jitter = Math.min(90, 20 + fleeLevel * 3);
+      let newX = btnX + vx * jump + (Math.random()*jitter - jitter/2);
+      let newY = btnY + vy * jump + (Math.random()*jitter - jitter/2);
+
+      // Im Bildschirm halten
+      newX = clamp(newX, padding, maxX);
+      newY = clamp(newY, padding, maxY);
+
+      // Setzen
+      btnX = newX;
+      btnY = newY;
+
+      noBtn.style.left = btnX + "px";
+      noBtn.style.top  = btnY + "px";
+
+      // Extra “Panik”
+      const rot = (Math.random()*10 - 5) * Math.min(1.8, 1 + fleeLevel*0.06);
+      noBtn.style.transform = `rotate(${rot}deg) scale(${1 + Math.min(0.35, fleeLevel*0.03)})`;
+      setTimeout(() => { noBtn.style.transform = "none"; }, 110);
+
+      // Cooldown wird immer kürzer (=> schneller)
+      const cd = Math.max(25, 180 - fleeLevel * 12);
+      cooldownUntil = now + cd;
+    }
+
+    // Desktop: Maus kommt ran -> flieh weg von Mausposition
+    noBtn.addEventListener("mousemove", (e) => {
+      fleeFrom(e.clientX, e.clientY);
+    });
+
+    // Wenn Maus nur reingeht (z.B. ganz kurz)
+    noBtn.addEventListener("mouseenter", (e) => {
+      fleeFrom(e.clientX, e.clientY);
+    });
+
+    // Mobile: Touch -> flieh weg vom Finger
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const t = e.touches[0];
+      fleeFrom(t.clientX, t.clientY);
+    }, { passive: false });
+
+    // Pointer Events: gut für Tablets / Stylus / Hybrid
+    noBtn.addEventListener("pointerenter", (e) => {
+      fleeFrom(e.clientX, e.clientY);
+    });
+
+    // Falls Fenstergröße sich ändert, Position neu clampen
+    window.addEventListener("resize", () => {
+      if (btnX === null) return;
+      const padding = 14;
+      const bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
+      btnX = clamp(btnX, padding, window.innerWidth - bw - padding);
+      btnY = clamp(btnY, padding, window.innerHeight - bh - padding);
+      noBtn.style.left = btnX + "px";
+      noBtn.style.top  = btnY + "px";
+    });
+  </script>
+</body>
+</html>
