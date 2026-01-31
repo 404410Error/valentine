@@ -7,8 +7,8 @@
 
 <style>
 :root{
-  --bg1:#ffd3e2;
-  --bg2:#f3b6c8;
+  --bg1:#f8c6d8;
+  --bg2:#eaa6c2;
   --card:#f6f2f2;
   --text:#111;
   --muted:#8f8f8f;
@@ -28,29 +28,53 @@ body{
   padding:24px;
 }
 
-/* Sakura canvas */
-#sakura{
+/* ======================
+   🌸 SAKURA BLOSSOMS
+====================== */
+.sakura-container{
   position:fixed;
   inset:0;
-  width:100%;
-  height:100%;
-  z-index:0;
   pointer-events:none;
+  z-index:1;
 }
 
-/* Card */
+.sakura{
+  position:absolute;
+  top:-10%;
+  font-size:26px;
+  opacity:.9;
+  filter: blur(.2px) drop-shadow(0 0 6px rgba(255,255,255,.6));
+  animation-name: fall, sway;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+@keyframes fall{
+  0%{ transform: translateY(-10vh) rotate(0deg); }
+  100%{ transform: translateY(120vh) rotate(360deg); }
+}
+
+@keyframes sway{
+  0%{ margin-left:0; }
+  50%{ margin-left:40px; }
+  100%{ margin-left:0; }
+}
+
+/* ======================
+   CARD
+====================== */
 .card{
   position:relative;
   z-index:2;
   width:min(760px, 94vw);
   background:var(--card);
-  border-radius:18px;
-  box-shadow:0 18px 50px rgba(0,0,0,.18);
+  border-radius:20px;
+  box-shadow:0 18px 50px rgba(0,0,0,.2);
   padding:34px 28px 20px;
   text-align:center;
 }
 
-/* Icon image */
+/* ICON */
 .icon{
   width:72px;
   height:72px;
@@ -59,7 +83,7 @@ body{
   display:block;
 }
 
-/* Title */
+/* TITLE */
 h1{
   margin:0 0 22px;
   font-size:clamp(22px, 3.5vw, 34px);
@@ -68,7 +92,7 @@ h1{
   color:var(--text);
 }
 
-/* Button area */
+/* CONTROLS */
 .controls{
   position:relative;
   width:420px;
@@ -77,7 +101,7 @@ h1{
   margin:0 auto;
 }
 
-/* Yes button */
+/* YES */
 #yes{
   position:absolute;
   left:40px;
@@ -94,7 +118,7 @@ h1{
 }
 #yes:active{ transform:scale(.97); }
 
-/* No button (shy text) */
+/* NO */
 #no{
   position:absolute;
   left:300px;
@@ -105,9 +129,7 @@ h1{
   font-size:13px;
   color:var(--muted);
   cursor:pointer;
-  transition:left .14s ease, top .14s ease, transform .12s ease;
-  will-change:left, top, transform;
-  touch-action:manipulation;
+  transition:left .14s ease, top .14s ease;
 }
 
 .caption{
@@ -126,9 +148,10 @@ h1{
 
 <body>
 
-<canvas id="sakura"></canvas>
+<!-- 🌸 Sakura Layer -->
+<div class="sakura-container" id="sakura"></div>
 
-<main class="card" id="card">
+<main class="card">
   <img class="icon" src="Icon.png" alt="icon">
 
   <h1 id="title">priya will you be my valentine?</h1>
@@ -143,112 +166,55 @@ h1{
 </main>
 
 <script>
-/* =====================
+/* ======================
    NAME
-===================== */
-const name = "Priya";
+====================== */
+const name="Priya";
 document.getElementById("title").textContent =
-  `${name.toLowerCase()} will you be my valentine?`;
+`${name.toLowerCase()} will you be my valentine?`;
 
-/* =====================
+/* ======================
    YES → HEARTS
-===================== */
-const heartChars=["💖","💘","💝","💗","💓","💕"];
-function hearts(){
-  for(let i=0;i<32;i++){
-    const h=document.createElement("div");
-    h.textContent=heartChars[Math.floor(Math.random()*heartChars.length)];
-    h.style.position="fixed";
-    h.style.left=(innerWidth/2+Math.random()*200-100)+"px";
-    h.style.top=(innerHeight/2)+"px";
-    h.style.fontSize="18px";
-    h.style.pointerEvents="none";
-    h.style.transition="transform 1.4s ease, opacity 1.4s";
-    document.body.appendChild(h);
-    setTimeout(()=>{
-      h.style.transform=`translate(${Math.random()*260-130}px,${-300-Math.random()*200}px) scale(1.4)`;
-      h.style.opacity="0";
-    },10);
-    setTimeout(()=>h.remove(),1500);
-  }
-}
-
+====================== */
 document.getElementById("yes").onclick=()=>{
   document.getElementById("result").textContent="Yaaay 💐";
-  hearts();
 };
 
-/* =====================
-   NO → SHY ESCAPE
-===================== */
+/* ======================
+   NO → ESCAPE
+====================== */
 const no=document.getElementById("no");
 const arena=document.getElementById("arena");
-let flee=0, cd=0;
-
 function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-
-function run(x,y){
-  const now=Date.now(); if(now<cd) return;
-  flee++;
+no.onmouseenter=e=>{
   const a=arena.getBoundingClientRect();
   const b=no.getBoundingClientRect();
-  const px=x-a.left, py=y-a.top;
-  let cx=(b.left-a.left)+b.width/2;
-  let cy=(b.top-a.top)+b.height/2;
-  let vx=cx-px, vy=cy-py;
-  const len=Math.hypot(vx,vy)||1; vx/=len; vy/=len;
-  const jump=Math.min(180,70+flee*10);
-  let nx=(b.left-a.left)+vx*jump;
-  let ny=(b.top-a.top)+vy*jump;
-  nx=clamp(nx,10,a.width-b.width-10);
-  ny=clamp(ny,10,a.height-b.height-10);
-  no.style.left=nx+"px";
-  no.style.top=ny+"px";
-  cd=now+Math.max(30,120-flee*8);
-}
-
-no.onmouseenter=e=>run(e.clientX,e.clientY);
-no.onmousemove=e=>run(e.clientX,e.clientY);
-no.ontouchstart=e=>{
-  e.preventDefault();
-  run(e.touches[0].clientX,e.touches[0].clientY);
+  let nx=Math.random()*(a.width-b.width);
+  let ny=Math.random()*(a.height-b.height);
+  no.style.left=clamp(nx,10,a.width-b.width-10)+"px";
+  no.style.top=clamp(ny,10,a.height-b.height-10)+"px";
 };
 
-/* =====================
-   SAKURA BACKGROUND
-===================== */
-const c=document.getElementById("sakura");
-const ctx=c.getContext("2d");
-function resize(){
-  c.width=innerWidth*devicePixelRatio;
-  c.height=innerHeight*devicePixelRatio;
-  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-}
-resize(); addEventListener("resize",resize);
+/* ======================
+   🌸 SAKURA GENERATOR
+====================== */
+const sakura=document.getElementById("sakura");
+const blossoms=["🌸","🌸","🌸","🌸","🌸"];
 
-const petals=[...Array(34)].map(()=>({
-  x:Math.random()*innerWidth,
-  y:Math.random()*innerHeight,
-  r:6+Math.random()*8,
-  vx:-0.5+Math.random(),
-  vy:0.8+Math.random()*1.4,
-  a:0.5+Math.random()*0.4
-}));
-
-function draw(){
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-  for(const p of petals){
-    p.x+=p.vx; p.y+=p.vy;
-    if(p.y>innerHeight){p.y=-20;p.x=Math.random()*innerWidth;}
-    ctx.globalAlpha=p.a;
-    ctx.beginPath();
-    ctx.ellipse(p.x,p.y,p.r*1.2,p.r,0,0,Math.PI*2);
-    ctx.fillStyle="#ffb7d5";
-    ctx.fill();
-  }
-  requestAnimationFrame(draw);
+function createBlossom(){
+  const b=document.createElement("div");
+  b.className="sakura";
+  b.textContent=blossoms[Math.floor(Math.random()*blossoms.length)];
+  b.style.left=Math.random()*100+"vw";
+  b.style.fontSize=(22+Math.random()*20)+"px";
+  const fallDur=10+Math.random()*10;
+  const swayDur=4+Math.random()*4;
+  b.style.animationDuration=`${fallDur}s, ${swayDur}s`;
+  sakura.appendChild(b);
+  setTimeout(()=>b.remove(), fallDur*1000);
 }
-draw();
+
+setInterval(createBlossom, 400); // density
 </script>
 
 </body>
