@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Will you be my Valentine?</title>
 
 <style>
 :root{
-  --bg1:#f8c6d8;
-  --bg2:#eaa6c2;
+  --bg1:#f7c3d9;
+  --bg2:#eaa0c2;
   --card:#f6f2f2;
   --text:#111;
   --muted:#8f8f8f;
@@ -29,52 +29,49 @@ body{
 }
 
 /* ======================
-   🌸 SAKURA BLOSSOMS
+   🌸 PETAL BLIZZARD LAYER
 ====================== */
-.sakura-container{
+.petal-layer{
   position:fixed;
   inset:0;
-  pointer-events:none;
   z-index:1;
+  pointer-events:none;
+  overflow:hidden;
 }
 
-.sakura{
+/* Real petal (SVG background) */
+.petal{
   position:absolute;
-  top:-10%;
-  font-size:26px;
-  opacity:.9;
-  filter: blur(.2px) drop-shadow(0 0 6px rgba(255,255,255,.6));
-  animation-name: fall, sway;
-  animation-timing-function: linear, ease-in-out;
-  animation-iteration-count: infinite, infinite;
+  top:-20vh;
+  width:34px;
+  height:34px;
+  opacity:1;
+  background-repeat:no-repeat;
+  background-size:contain;
+  background-position:center;
+
+  /* glow */
+  filter:
+    drop-shadow(0 0 10px rgba(255,245,250,0.95))
+    drop-shadow(0 0 24px rgba(255,190,220,0.85))
+    drop-shadow(0 0 42px rgba(245,120,185,0.65));
+
+  will-change: transform, top, left;
 }
 
-@keyframes fall{
-  0%{ transform: translateY(-10vh) rotate(0deg); }
-  100%{ transform: translateY(120vh) rotate(360deg); }
-}
-
-@keyframes sway{
-  0%{ margin-left:0; }
-  50%{ margin-left:40px; }
-  100%{ margin-left:0; }
-}
-
-/* ======================
-   CARD
-====================== */
+/* Card */
 .card{
   position:relative;
   z-index:2;
   width:min(760px, 94vw);
   background:var(--card);
-  border-radius:20px;
-  box-shadow:0 18px 50px rgba(0,0,0,.2);
-  padding:34px 28px 20px;
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  padding:36px 28px 22px;
   text-align:center;
 }
 
-/* ICON */
+/* Icon */
 .icon{
   width:72px;
   height:72px;
@@ -83,7 +80,7 @@ body{
   display:block;
 }
 
-/* TITLE */
+/* Title */
 h1{
   margin:0 0 22px;
   font-size:clamp(22px, 3.5vw, 34px);
@@ -92,7 +89,7 @@ h1{
   color:var(--text);
 }
 
-/* CONTROLS */
+/* Buttons */
 .controls{
   position:relative;
   width:420px;
@@ -101,7 +98,6 @@ h1{
   margin:0 auto;
 }
 
-/* YES */
 #yes{
   position:absolute;
   left:40px;
@@ -114,11 +110,10 @@ h1{
   cursor:pointer;
   background:var(--yes);
   color:white;
-  box-shadow:0 14px 28px rgba(230,27,106,.25);
+  box-shadow:0 18px 36px rgba(230,27,106,.35);
 }
 #yes:active{ transform:scale(.97); }
 
-/* NO */
 #no{
   position:absolute;
   left:300px;
@@ -129,7 +124,8 @@ h1{
   font-size:13px;
   color:var(--muted);
   cursor:pointer;
-  transition:left .14s ease, top .14s ease;
+  transition:left .12s ease, top .12s ease;
+  touch-action:manipulation;
 }
 
 .caption{
@@ -148,10 +144,11 @@ h1{
 
 <body>
 
-<!-- 🌸 Sakura Layer -->
-<div class="sakura-container" id="sakura"></div>
+<!-- 🌸 Petal Blizzard -->
+<div class="petal-layer" id="petalLayer"></div>
 
 <main class="card">
+  <!-- IMPORTANT: file must be Icon.png in repo root -->
   <img class="icon" src="Icon.png" alt="icon">
 
   <h1 id="title">priya will you be my valentine?</h1>
@@ -169,53 +166,182 @@ h1{
 /* ======================
    NAME
 ====================== */
-const name="Priya";
+const name = "Priya";
 document.getElementById("title").textContent =
-`${name.toLowerCase()} will you be my valentine?`;
+  `${name.toLowerCase()} will you be my valentine?`;
 
 /* ======================
-   YES → HEARTS
+   YES
 ====================== */
-document.getElementById("yes").onclick=()=>{
-  document.getElementById("result").textContent="Yaaay 💐";
+document.getElementById("yes").onclick = () => {
+  document.getElementById("result").textContent = "Yaaay 💐";
 };
 
 /* ======================
-   NO → ESCAPE
+   NO ESCAPE (shy)
 ====================== */
-const no=document.getElementById("no");
-const arena=document.getElementById("arena");
-function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
-no.onmouseenter=e=>{
-  const a=arena.getBoundingClientRect();
-  const b=no.getBoundingClientRect();
-  let nx=Math.random()*(a.width-b.width);
-  let ny=Math.random()*(a.height-b.height);
-  no.style.left=clamp(nx,10,a.width-b.width-10)+"px";
-  no.style.top=clamp(ny,10,a.height-b.height-10)+"px";
-};
+const no = document.getElementById("no");
+const arena = document.getElementById("arena");
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
-/* ======================
-   🌸 SAKURA GENERATOR
-====================== */
-const sakura=document.getElementById("sakura");
-const blossoms=["🌸","🌸","🌸","🌸","🌸"];
-
-function createBlossom(){
-  const b=document.createElement("div");
-  b.className="sakura";
-  b.textContent=blossoms[Math.floor(Math.random()*blossoms.length)];
-  b.style.left=Math.random()*100+"vw";
-  b.style.fontSize=(22+Math.random()*20)+"px";
-  const fallDur=10+Math.random()*10;
-  const swayDur=4+Math.random()*4;
-  b.style.animationDuration=`${fallDur}s, ${swayDur}s`;
-  sakura.appendChild(b);
-  setTimeout(()=>b.remove(), fallDur*1000);
+function fleeRandom(){
+  const a = arena.getBoundingClientRect();
+  const b = no.getBoundingClientRect();
+  const nx = clamp(Math.random()*(a.width-b.width), 10, a.width-b.width-10);
+  const ny = clamp(Math.random()*(a.height-b.height), 10, a.height-b.height-10);
+  no.style.left = nx + "px";
+  no.style.top  = ny + "px";
 }
 
-setInterval(createBlossom, 400); // density
+no.addEventListener("mouseenter", fleeRandom);
+no.addEventListener("touchstart", (e) => { e.preventDefault(); fleeRandom(); }, { passive:false });
+
+/* ======================
+   🌸 REAL PETAL BLIZZARD
+   (SVG petal in data URI)
+====================== */
+const layer = document.getElementById("petalLayer");
+
+// A real petal shape (not emoji). Two variants for variety.
+const petalSVGs = [
+  // Petal A
+  `data:image/svg+xml;utf8,` + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <defs>
+        <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#fff6fb"/>
+          <stop offset="0.55" stop-color="#ffb5d6"/>
+          <stop offset="1" stop-color="#f06aa9"/>
+        </linearGradient>
+      </defs>
+      <path d="M32 4
+               C44 10, 54 24, 50 38
+               C46 52, 34 60, 32 60
+               C30 60, 18 52, 14 38
+               C10 24, 20 10, 32 4 Z"
+            fill="url(#g)"/>
+      <path d="M32 10 C38 18, 40 32, 32 54 C24 32, 26 18, 32 10 Z"
+            fill="rgba(255,255,255,0.25)"/>
+    </svg>
+  `),
+  // Petal B (slightly different)
+  `data:image/svg+xml;utf8,` + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <defs>
+        <radialGradient id="g" cx="35%" cy="20%" r="90%">
+          <stop offset="0" stop-color="#fff9fd"/>
+          <stop offset="0.55" stop-color="#ff9fcb"/>
+          <stop offset="1" stop-color="#ea4f9a"/>
+        </radialGradient>
+      </defs>
+      <path d="M32 6
+               C46 14, 56 28, 48 44
+               C41 58, 32 60, 32 60
+               C32 60, 23 58, 16 44
+               C8 28, 18 14, 32 6 Z"
+            fill="url(#g)"/>
+      <path d="M20 28 C28 22, 40 22, 48 28" stroke="rgba(255,255,255,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  `)
+];
+
+// Performance-friendly: limit max petals on screen
+const MAX_PETALS = 140; // snowstorm vibe
+let activePetals = 0;
+
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+function spawnPetal(initial=false){
+  if (activePetals >= MAX_PETALS) return;
+  activePetals++;
+
+  const p = document.createElement("div");
+  p.className = "petal";
+  p.style.backgroundImage = `url("${petalSVGs[Math.floor(Math.random()*petalSVGs.length)]}")`;
+
+  // Size (bigger + variety)
+  const size = rand(18, 54);
+  p.style.width = size + "px";
+  p.style.height = size + "px";
+
+  // Start x anywhere; start y above screen (or random if initial)
+  const startX = rand(-10, 110);
+  const startY = initial ? rand(-10, 110) : rand(-30, -10);
+
+  // Movement parameters
+  const fallDur = rand(8, 18);      // slower-ish
+  const rotDur  = rand(4, 10);
+  const swayDur = rand(3, 7);
+
+  // Wind direction + amplitude (snowstorm: stronger drift)
+  const driftX  = rand(-260, 260);  // strong sideways drift across fall
+  const swayAmp = rand(30, 120);    // wavy motion
+
+  // Opacity and extra glow on some
+  p.style.opacity = rand(0.75, 1).toFixed(2);
+
+  // Place
+  p.style.left = startX + "vw";
+  p.style.top  = startY + "vh";
+
+  // Use Web Animations API for smoothness
+  const startLeft = startX;
+  const endLeft = startX + (driftX/innerWidth)*100; // convert px-ish drift to vw-ish
+  const rotateFrom = rand(-50, 50);
+  const rotateTo = rotateFrom + rand(220, 760);
+
+  // Fall + drift + sway + rotate combined
+  const anim = p.animate([
+    {
+      transform: `translate(0, -20vh) rotate(${rotateFrom}deg)`,
+      left: `${startLeft}vw`,
+      top: `${startY}vh`
+    },
+    {
+      transform: `translate(${swayAmp}px, 140vh) rotate(${rotateTo}deg)`,
+      left: `${endLeft}vw`,
+      top: `120vh`
+    }
+  ], {
+    duration: fallDur * 1000,
+    iterations: 1,
+    easing: "linear"
+  });
+
+  // Additional gentle sway (side-to-side)
+  const sway = p.animate([
+    { transform: `translate(0,0) rotate(0deg)` },
+    { transform: `translate(${swayAmp}px,0) rotate(0deg)` },
+    { transform: `translate(0,0) rotate(0deg)` }
+  ], {
+    duration: swayDur * 1000,
+    iterations: Infinity,
+    easing: "ease-in-out"
+  });
+
+  // If animations end, clean up
+  anim.onfinish = () => {
+    sway.cancel();
+    p.remove();
+    activePetals--;
+  };
+
+  layer.appendChild(p);
+}
+
+// Initial “already falling” fill to avoid empty start
+for (let i = 0; i < 70; i++) spawnPetal(true);
+
+// Snowstorm density: spawn frequently
+setInterval(() => spawnPetal(false), 70); // 🔥 higher density
+
+// On resize, reduce active petals a bit to keep smooth
+window.addEventListener("resize", () => {
+  // optional: reset count softly
+  // (no hard reset; just let old ones finish)
+});
 </script>
 
 </body>
 </html>
+
